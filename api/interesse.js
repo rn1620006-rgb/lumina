@@ -4,15 +4,16 @@ const {Pool}=require('pg');
 const {validate}=require('../lib/lead-validation');
 let pool;
 const limit=5;
+const connectionUrl=process.env.DATABASE_URL||process.env.POSTGRES_URL;
 function db(){
-  if(!pool) pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:true},max:2,connectionTimeoutMillis:6000,idleTimeoutMillis:12000});
+  if(!pool) pool=new Pool({connectionString:connectionUrl,ssl:{rejectUnauthorized:true},max:2,connectionTimeoutMillis:6000,idleTimeoutMillis:12000});
   return pool;
 }
 function finish(res,status,data){res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');return res.status(status).json(data);}
 module.exports=async function handler(req,res){
   res.setHeader('Allow','POST');
   if(req.method!=='POST') return finish(res,405,{ok:false,error:'Método não permitido.'});
-  if(!process.env.DATABASE_URL || process.env.LUMINA_SIGNUPS_ENABLED!=='true') return finish(res,503,{ok:false,error:'As pré-inscrições ainda não estão abertas.'});
+  if(!connectionUrl || process.env.LUMINA_SIGNUPS_ENABLED!=='true') return finish(res,503,{ok:false,error:'As pré-inscrições ainda não estão abertas.'});
   const origin=req.headers.origin;
   const host=req.headers.host;
   if(!origin || !host || !/^https?:\/\//.test(origin)) return finish(res,403,{ok:false,error:'Origem não autorizada.'});
@@ -30,7 +31,7 @@ module.exports=async function handler(req,res){
   if(!v.ok) return finish(res,400,{ok:false,error:v.error});
   const source=(req.headers['x-vercel-forwarded-for']||req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unknown');
   const ip=String(Array.isArray(source)?source[0]:source).split(',')[0].slice(0,100);
-  const ipHash=crypto.createHmac('sha256',process.env.RATE_LIMIT_SECRET||process.env.DATABASE_URL).update(ip).digest('hex');
+  const ipHash=crypto.createHmac('sha256',process.env.RATE_LIMIT_SECRET||connectionUrl).update(ip).digest('hex');
   let client;
   try{
     client=await db().connect();
