@@ -4,7 +4,7 @@
   "private": true,
   "description": "LUMINA — marketplace de serviços, Algarve",
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   },
   "scripts": {
     "test": "node --test"
