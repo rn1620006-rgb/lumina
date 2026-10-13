@@ -12,7 +12,7 @@ function finish(res,status,data){res.setHeader('Cache-Control','no-store');res.s
 module.exports=async function handler(req,res){
   res.setHeader('Allow','POST');
   if(req.method!=='POST') return finish(res,405,{ok:false,error:'Método não permitido.'});
-  if(!process.env.DATABASE_URL) return finish(res,503,{ok:false,error:'As pré-inscrições ainda não estão abertas.'});
+  if(!process.env.DATABASE_URL || process.env.LUMINA_SIGNUPS_ENABLED!=='true') return finish(res,503,{ok:false,error:'As pré-inscrições ainda não estão abertas.'});
   const origin=req.headers.origin;
   const host=req.headers.host;
   if(!origin || !host || !/^https?:\/\//.test(origin)) return finish(res,403,{ok:false,error:'Origem não autorizada.'});
