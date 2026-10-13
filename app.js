@@ -78,6 +78,7 @@
   document.querySelectorAll('[data-category-jump]').forEach(link=>link.addEventListener('click',()=>{
     if(query)query.value='';
     setFilter(link.dataset.categoryJump || 'todos');
+    if(link.tagName==='BUTTON') document.getElementById('explorar')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
   }));
   function showModal(title,body){
     lastFocus=document.activeElement;
@@ -108,7 +109,10 @@
     document.getElementById('booking-one-value').textContent=d.valueOne;
     document.getElementById('booking-two-label').textContent=d.fieldTwo;
     document.getElementById('booking-two-value').textContent=d.valueTwo;
-    document.getElementById('booking-action').textContent=d.action;
+    const action=document.getElementById('booking-action');
+    action.textContent=d.action;
+    action.dataset.title=value==='orcamento'?'Demonstração de pedido de orçamento':'Demonstração de reserva';
+    action.dataset.message=value==='orcamento'?'Os pedidos de orçamento são apenas uma pré-visualização nesta versão. Ainda não é possível enviar propostas reais.':'Esta interface é demonstrativa. Reservas reais exigem profissionais registados, agenda e base de dados segura.';
   }
   document.querySelectorAll('[data-booking-tab]').forEach(b=>b.addEventListener('click',()=>bookingTab(b.dataset.bookingTab)));
   const menuButton=document.getElementById('mobile-menu-toggle'),mobileMenu=document.getElementById('mobile-menu');
