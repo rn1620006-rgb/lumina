@@ -54,6 +54,6 @@ test('segurança da conta exige reautenticação antes de alterar palavra-passe'
  assert.doesNotMatch(script,/set\(ref\(database,[^;]*password/i);
 });
 test('nunca apresenta email verificado como aprovação profissional',()=>{
- assert.match(html,/verifica(?:ção|r).*email/i);
+ assert.match(html,/Verifica o teu email/i);
  assert.match(html,/verificação documental/i);
 });
