@@ -2,18 +2,23 @@
 
 Este repositório é o projeto principal da LUMINA, publicado na Vercel.
 
-## Estado atual (14 outubro 2026)
+## Estado atual (14 outubro 2026) — Firebase Web integrado
 
 - Identidade visual **Petróleo Imperial** (azul midnight, champanhe metálico, Liquid Glass).
 - Homepage responsiva, pesquisa por categorias e pré-visualização de reserva/orçamento.
-- `/participar.html`: formulário de pré-interesse de clientes e profissionais, **desativado por padrão**.
+- `/conta.html`: Firebase Authentication (email/palavra-passe, confirmação de email, sessão persistente, recuperação de palavra-passe), perfil privado e primeiros pedidos de orçamento em tempo real.
+- `firebase-client.js`: configuração web oficial LUMINA inserida no código; não requer `.env` na Vercel.
+- `database/firebase.rules.json`: regras de segurança por UID e proibição de elevação de privilégios.
+- `/participar.html`: endereço histórico, agora encaminhado para `/conta.html`.
 - `/privacidade.html`: política de privacidade preliminar, sujeita a revisão antes de abrir inscrições.
 - `/api/health`: informa ao frontend se a recolha de interesse está ativada.
 - `/api/interesse`: endpoint POST, validação server-side, consentimento, honeypot, limitação por IP e Postgres.
 - `database/001_early_access.sql`: tabelas para manifestações de interesse e antispam.
 - `tests/lead-validation.test.js`: testes de validação.
 
-**O website não tem reservas, pagamentos, registo de contas ou chat reais nesta fase. Não ativar qualquer um desses fluxos sem infraestrutura, segurança e testes.**
+**O website ainda não tem reservas, pagamentos ou chat reais.** O registo e os pedidos pessoais só ficam abertos depois de o proprietário ativar Email/Password, instalar as regras de segurança do Firebase e definir `lumina_v1/public/registrationEnabled=true` na consola. Não iniciar registos antes dessa validação.
+
+O antigo endpoint de interesse PostgreSQL mantém-se fechado e foi substituído pelo percurso Firebase.
 
 ## Regras de proteção
 
