@@ -29,3 +29,17 @@ test('não existem menus de administração sem controlo de servidor',()=>{
  assert.doesNotMatch(html,/id="admin-dashboard"/);
  assert.doesNotMatch(script,/set\(.+admin/);
 });
+
+test('o catálogo permite preparar pedidos privados sem os publicar',()=>{
+  const catalog=read('app.js');
+  assert.match(catalog,/conta\.html\?categoria=/);
+  assert.match(script,/requestedCategory/);
+  assert.match(script,/request-category/);
+  assert.match(html,/id="request-form"/);
+});
+test('editor e pesquisador de pedidos oferecem controlos reais',()=>{
+  assert.match(html,/id="edit-profile-form"/);
+  assert.match(html,/id="request-search"/);
+  assert.match(script,/elements\.requestSearch\.addEventListener\('input',renderRequestList\)/);
+  assert.match(script,/navigator\.clipboard\.writeText/);
+});
