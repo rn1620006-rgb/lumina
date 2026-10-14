@@ -1,16 +1,16 @@
 {
   "name": "lumina-marketplace",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
-  "description": "LUMINA — marketplace de serviços, Algarve",
+  "description": "LUMINA — marketplace premium de serviços, com Firebase Authentication e Realtime Database",
   "engines": {
     "node": "24.x"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "firebase:rules": "firebase deploy --only database --project lumina-a0b15"
   },
   "dependencies": {
-    "pg": "^8.13.1",
     "firebase": "^12.19.0"
   }
 }
