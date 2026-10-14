@@ -224,3 +224,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{o
   .hero-brand-gallery,.hero-logo,.category-image,.icon-arrow{animation:none!important;transition:none!important}
   .hero-brand-gallery{transform:none!important}
 }
+
+/* Faq accordion + perfil: controlos vetoriais, nunca glifos decorativos */
+.faq summary:after,.faq details[open] summary:after{content:none!important;display:none!important}
+.faq-chevron{width:19px;height:19px;margin-left:auto;color:#d4af6a;transition:transform .3s ease}
+.faq details[open] .faq-chevron{transform:rotate(180deg)}
+.profile-editor .icon-edit{width:19px;height:19px;color:#d4af6a}
