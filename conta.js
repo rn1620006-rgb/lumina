@@ -4,7 +4,7 @@ import {
   signOut, sendEmailVerification, sendPasswordResetEmail, reload,
   getIdToken, setPersistence, browserLocalPersistence
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import { ref, get, set, push, onValue, serverTimestamp }
+import { ref, set, update, push, onValue, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js';
 
 const el=id=>document.getElementById(id);
@@ -18,10 +18,14 @@ const elements={
   profileOverview:el('profile-overview'),clientArea:el('client-area'),
   professionalArea:el('professional-area'),verifyBox:el('verify-box'),
   requestForm:el('request-form'),requestSubmit:el('request-submit'),
-  requestsList:el('requests-list'),requestCounter:el('request-counter')
+  requestsList:el('requests-list'),requestCounter:el('request-counter'),
+  editProfileForm:el('edit-profile-form'),editProfileSubmit:el('edit-profile-submit'),
+  requestSearch:el('request-search'),connectionStatus:el('firebase-connection-status'),
+  connectionDot:el('firebase-connection-dot'),verificationState:el('account-verification-state')
 };
 let mode='login', registrationOpen=false, currentUser=null, currentProfile=null;
 let stopProfile=null,stopRequests=null,busy=false;
+let myRequests=[];
 el('copyright-year').textContent=String(new Date().getFullYear());
 
 function toast(message,type='info'){
@@ -69,7 +73,7 @@ function setMode(next){
   elements.registrationNotice.hidden=!create||registrationOpen;
   elements.authTitle.textContent=create?'A tua história começa aqui.':'Bem-vindo à LUMINA.';
   elements.authDescription.textContent=create?'Cria o teu espaço pessoal como cliente ou profissional.':'Entra com a tua conta e continua de onde ficaste.';
-  elements.authSubmit.textContent=create?'Criar conta LUMINA ↗':'Entrar na LUMINA ↗';
+  elements.authSubmit.textContent=create?(registrationOpen?'Criar conta LUMINA ↗':'Registo temporariamente fechado'):'Entrar na LUMINA ↗';
   elements.authSubmit.disabled=busy||(create&&!registrationOpen);
   el('auth-password').setAttribute('autocomplete',create?'new-password':'current-password');
   el('register-name').required=create;el('register-city').required=create;
@@ -77,14 +81,24 @@ function setMode(next){
   clearToast();
 }
 document.querySelectorAll('[data-auth-tab]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.authTab)));
-async function checkRegistration(){
-  try{
-    const snapshot=await get(ref(database,LUMINA_PATH+'/public/registrationEnabled'));
+function checkRegistration(){
+  return onValue(ref(database,LUMINA_PATH+'/public/registrationEnabled'),snapshot=>{
+    const previous=registrationOpen;
     registrationOpen=snapshot.val()===true;
-  }catch{
+    elements.registrationNotice.textContent=registrationOpen
+      ?'Registo disponível.'
+      :'Ainda não é possível criar contas. Verifica se a flag lumina_v1/public/registrationEnabled está definida como true no Realtime Database.';
+    elements.registrationNotice.hidden=mode!=='register'||registrationOpen;
+    elements.authSubmit.disabled=busy||(mode==='register'&&!registrationOpen);
+    if(previous!==registrationOpen && mode==='register' && !busy) {
+      elements.authSubmit.textContent=registrationOpen?'Criar conta LUMINA ↗':'Registo temporariamente fechado';
+    }
+  },()=>{
     registrationOpen=false;
-  }
-  if(mode==='register')setMode('register');
+    elements.registrationNotice.textContent='Não foi possível consultar a configuração pública de registo. Verifica se as regras publicadas permitem ler lumina_v1/public/registrationEnabled.';
+    elements.registrationNotice.hidden=mode!=='register';
+    if(mode==='register')elements.authSubmit.disabled=true;
+  });
 }
 elements.authForm.addEventListener('submit',async event=>{
   event.preventDefault();if(busy)return;
@@ -124,7 +138,7 @@ elements.authForm.addEventListener('submit',async event=>{
   finally{
     busy=false;
     elements.authSubmit.disabled=(mode==='register'&&!registrationOpen);
-    elements.authSubmit.textContent=mode==='register'?'Criar conta LUMINA ↗':'Entrar na LUMINA ↗';
+    elements.authSubmit.textContent=mode==='register'?(registrationOpen?'Criar conta LUMINA ↗':'Registo temporariamente fechado'):'Entrar na LUMINA ↗';
   }
 });
 elements.forgot.addEventListener('click',async()=>{
@@ -140,11 +154,15 @@ function stopSubscriptions(){
   if(stopProfile){stopProfile();stopProfile=null}
   if(stopRequests){stopRequests();stopRequests=null}
   currentProfile=null;
+  myRequests=[];
+  elements.requestsList.replaceChildren();
+  elements.requestCounter.textContent='0 pedidos';
 }
 function verificationUI(user){
   const isVerified=Boolean(user.emailVerified);
   elements.verifyBox.hidden=isVerified;
   elements.requestSubmit.disabled=!isVerified;
+  if(elements.verificationState) elements.verificationState.textContent=isVerified?'Email verificado ✓':'Verificação de email pendente';
   return isVerified;
 }
 el('verify-refresh').addEventListener('click',async()=>{
@@ -163,33 +181,62 @@ function renderSections(){
   elements.clientArea.hidden=!hasProfile||prof.role!=='cliente';
   elements.professionalArea.hidden=!hasProfile||prof.role!=='profissional';
   if(hasProfile){
+    const editor=document.querySelector('.profile-editor');
+    if(!editor?.open){
+      el('edit-profile-name').value=prof.name||'';
+      el('edit-profile-city').value=prof.city||'';
+    }
     el('profile-display-name').textContent=prof.name||'Utilizador LUMINA';
     el('profile-monogram').textContent=(prof.name||'L').charAt(0).toUpperCase();
     el('profile-meta').textContent=(prof.role==='cliente'?'Cliente':'Profissional')+' · '+(prof.city||'Portugal');
     el('dashboard-title').textContent='Olá, '+(prof.name||'').split(' ')[0]+'.';
     el('request-city').value=el('request-city').value||prof.city||'';
   }
-  if(hasProfile && prof.role==='cliente' && currentUser.emailVerified){
+  if(hasProfile && prof.role==='cliente'){
     listenRequests();
-  }else if(stopRequests){stopRequests();stopRequests=null;elements.requestsList.replaceChildren();elements.requestCounter.textContent='0 pedidos';}
+  }else if(stopRequests){stopRequests();stopRequests=null;myRequests=[];renderRequestList();}
 }
+function renderRequestList(){
+  const q=safeText(elements.requestSearch.value,180).toLocaleLowerCase('pt-PT');
+  const filtered=myRequests.filter(item=>
+    [item.title,item.category,item.city,item.details].some(value=>String(value||'').toLocaleLowerCase('pt-PT').includes(q))
+  );
+  elements.requestCounter.textContent=myRequests.length+' '+(myRequests.length===1?'pedido':'pedidos');
+  elements.requestsList.replaceChildren();
+  if(!filtered.length){
+    const p=document.createElement('p');p.className='muted';
+    p.textContent=myRequests.length?'Não existem pedidos correspondentes à pesquisa.':'Ainda não guardaste pedidos.';
+    elements.requestsList.append(p);return;
+  }
+  for(const item of filtered){
+    const node=document.createElement('article');node.className='request-item';
+    const title=document.createElement('h4');title.textContent=item.title||'Pedido de orçamento';
+    const subtitle=document.createElement('p');subtitle.className='request-meta';
+    subtitle.textContent=(item.category||'Serviço')+' · '+(item.city||'Algarve');
+    const details=document.createElement('p');details.textContent=item.details||'';
+    const status=document.createElement('span');status.className='request-state';
+    status.textContent='✦ Guardado (não enviado)';
+    const copy=document.createElement('button');copy.className='account-copy';copy.type='button';
+    copy.textContent='Copiar resumo ↗';
+    copy.setAttribute('aria-label','Copiar resumo do pedido '+String(item.title||''));
+    copy.addEventListener('click',async()=>{
+      const summary=[item.title,item.category+' · '+item.city,item.details].join('\n\n');
+      try {
+        if(!navigator.clipboard?.writeText)throw new Error('clipboard_unavailable');
+        await navigator.clipboard.writeText(summary);
+        toast('Resumo copiado. Não contém dados de outros utilizadores.','success');
+      }catch{toast('Não foi possível copiar automaticamente. Usa a seleção manual do texto.','error');}
+    });
+    node.append(title,subtitle,details,status,copy);elements.requestsList.append(node);
+  }
+}
+elements.requestSearch.addEventListener('input',renderRequestList);
 function listenRequests(){
   if(stopRequests || !currentUser)return;
   stopRequests=onValue(ref(database,LUMINA_PATH+'/requests/'+currentUser.uid),snapshot=>{
-    const items=snapshot.exists()?Object.values(snapshot.val()).filter(x=>x&&typeof x==='object'):[];
-    items.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
-    elements.requestCounter.textContent=items.length+' '+(items.length===1?'pedido':'pedidos');
-    elements.requestsList.replaceChildren();
-    if(!items.length){const p=document.createElement('p');p.className='muted';p.textContent='Ainda não guardaste pedidos.';elements.requestsList.append(p);return;}
-    for(const item of items){
-      const node=document.createElement('article');node.className='request-item';
-      const title=document.createElement('h4');title.textContent=item.title||'Pedido de orçamento';
-      const subtitle=document.createElement('p');subtitle.className='request-meta';
-      subtitle.textContent=(item.category||'Serviço')+' · '+(item.city||'Algarve');
-      const details=document.createElement('p');details.textContent=item.details||'';
-      const status=document.createElement('span');status.className='request-state';status.textContent='✦ '+(item.status==='novo'?'Guardado (não enviado)':'Em análise');
-      node.append(title,subtitle,details,status);elements.requestsList.append(node);
-    }
+    myRequests=snapshot.exists()?Object.values(snapshot.val()).filter(x=>x&&typeof x==='object'):[];
+    myRequests.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+    renderRequestList();
   },error=>toast(friendlyError(error),'error'));
 }
 function watchProfile(user){
@@ -212,6 +259,33 @@ elements.profileForm.addEventListener('submit',async event=>{
     });
     toast('Perfil guardado com sucesso.','success');
   }catch(error){toast(friendlyError(error),'error')}
+});
+elements.editProfileForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const user=currentUser,profile=currentProfile;
+  if(!user || !profile || !['cliente','profissional'].includes(profile.role)){
+    toast('Inicia sessão e completa o perfil antes de o editar.','error');return;
+  }
+  const name=safeText(el('edit-profile-name').value);
+  const city=safeText(el('edit-profile-city').value,80);
+  if(name.length<2||city.length<2){
+    toast('O nome e a localidade devem ter pelo menos 2 caracteres.','error');return;
+  }
+  elements.editProfileSubmit.disabled=true;
+  elements.editProfileSubmit.textContent='A guardar…';
+  try{
+    // Atualiza apenas campos autorizados pelas Rules já publicadas; papel e email nunca mudam.
+    await update(ref(database,LUMINA_PATH+'/profiles/'+user.uid),{
+      name,city,updatedAt:serverTimestamp()
+    });
+    const editor=document.querySelector('.profile-editor');
+    if(editor)editor.open=false;
+    toast('Dados atualizados e guardados no Firebase.','success');
+  }catch(error){toast(friendlyError(error),'error');}
+  finally{
+    elements.editProfileSubmit.disabled=false;
+    elements.editProfileSubmit.textContent='Guardar alterações ↗';
+  }
 });
 elements.requestForm.addEventListener('submit',async event=>{
   event.preventDefault();
@@ -243,4 +317,12 @@ onAuthStateChanged(auth,user=>{
   el('profile-role').value=el('register-role').value||'cliente';
   currentProfile=null;renderSections();watchProfile(user);
 },error=>{showPanel('auth');toast(friendlyError(error),'error')});
+onValue(ref(database,'.info/connected'),snapshot=>{
+  const connected=snapshot.val()===true;
+  elements.connectionStatus.textContent=connected?'Firebase ligado':'Sem ligação em tempo real';
+  elements.connectionDot.classList.toggle('online',connected);
+},()=>{
+  elements.connectionStatus.textContent='Ligação indisponível';
+  elements.connectionDot.classList.remove('online');
+});
 checkRegistration();
