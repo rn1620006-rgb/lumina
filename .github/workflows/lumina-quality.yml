@@ -1,0 +1,30 @@
+name: LUMINA — Verificação de Qualidade
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  tests:
+    name: Estrutura e segurança Firebase
+    runs-on: ubuntu-latest
+    steps:
+      - name: Transferir código
+        uses: actions/checkout@v4
+      - name: Preparar Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package.json
+      - name: Instalar dependências
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Executar testes
+        run: npm test
+      - name: Verificar sintaxe do frontend
+        run: |
+          node --check app.js
+          node --check firebase-client.js
+          node --check conta.js
