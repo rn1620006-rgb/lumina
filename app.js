@@ -2,19 +2,29 @@
 (() => {
   'use strict';
   const services = [
-    {name:'Limpeza doméstica',group:'casa',symbol:'✦',detail:'Casas, apartamentos e alojamentos'},
-    {name:'Limpeza pós-obra',group:'casa',symbol:'✧',detail:'Espaços renovados, bem cuidados'},
-    {name:'Canalização',group:'reparacoes',symbol:'≋',detail:'Manutenção e reparações'},
-    {name:'Eletricidade',group:'reparacoes',symbol:'ϟ',detail:'Instalações e assistência'},
-    {name:'Pintura',group:'reparacoes',symbol:'◫',detail:'Interiores e fachadas'},
-    {name:'Jardinagem',group:'exterior',symbol:'❀',detail:'Jardins e espaços exteriores'},
-    {name:'Piscinas',group:'exterior',symbol:'◈',detail:'Manutenção e conservação'},
-    {name:'Montagem de móveis',group:'casa',symbol:'▤',detail:'Montagem e pequenos trabalhos'},
-    {name:'Climatização',group:'reparacoes',symbol:'❄',detail:'Conforto em todas as estações'},
-    {name:'Beleza e bem-estar',group:'bemestar',symbol:'✿',detail:'Cuidados pessoais'},
-    {name:'Obras e remodelações',group:'reparacoes',symbol:'⌑',detail:'Transformar ambientes'},
-    {name:'Eventos',group:'eventos',symbol:'✳',detail:'Momentos especiais'}
+    {name:'Limpeza doméstica',group:'casa',icon:'clean',detail:'Casas, apartamentos e alojamentos'},
+    {name:'Limpeza pós-obra',group:'casa',icon:'post-clean',detail:'Espaços renovados, bem cuidados'},
+    {name:'Canalização',group:'reparacoes',icon:'plumbing',detail:'Manutenção e reparações'},
+    {name:'Eletricidade',group:'reparacoes',icon:'electric',detail:'Instalações e assistência'},
+    {name:'Pintura',group:'reparacoes',icon:'paint',detail:'Interiores e fachadas'},
+    {name:'Jardinagem',group:'exterior',icon:'garden',detail:'Jardins e espaços exteriores'},
+    {name:'Piscinas',group:'exterior',icon:'pool',detail:'Manutenção e conservação'},
+    {name:'Montagem de móveis',group:'casa',icon:'furniture',detail:'Montagem e pequenos trabalhos'},
+    {name:'Climatização',group:'reparacoes',icon:'climate',detail:'Conforto em todas as estações'},
+    {name:'Beleza e bem-estar',group:'bemestar',icon:'wellness',detail:'Cuidados pessoais'},
+    {name:'Obras e remodelações',group:'reparacoes',icon:'renovation',detail:'Transformar ambientes'},
+    {name:'Eventos',group:'eventos',icon:'events',detail:'Momentos especiais'}
   ];
+  function makeIcon(name){
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','l-icon');
+    svg.setAttribute('aria-hidden','true');
+    svg.setAttribute('focusable','false');
+    const use=document.createElementNS('http://www.w3.org/2000/svg','use');
+    use.setAttribute('href','/assets/lumina-icons.svg#'+name);
+    svg.append(use);
+    return svg;
+  }
   const cards = document.getElementById('service-list');
   const query = document.getElementById('service-query');
   const heroSearch = document.getElementById('hero-search');
@@ -40,9 +50,9 @@
       button.className = 'service-tile';
       button.setAttribute('aria-label',s.name+' — preparar pedido de orçamento pessoal');
       const icon = document.createElement('span');
-      icon.className = 'service-icon'; icon.textContent = s.symbol;
+      icon.className = 'service-icon'; icon.append(makeIcon(s.icon));
       const arrow = document.createElement('span');
-      arrow.className = 'tile-arrow'; arrow.setAttribute('aria-hidden','true'); arrow.textContent = '↗';
+      arrow.className = 'tile-arrow'; arrow.setAttribute('aria-hidden','true'); arrow.append(makeIcon('arrow-up-right'));
       const title = document.createElement('strong'); title.textContent = s.name;
       const caption = document.createElement('small'); caption.textContent = s.detail;
       button.append(icon,arrow,title,caption);
@@ -83,7 +93,7 @@
   function showModal(title,body){
     lastFocus=document.activeElement;
     modalTitle.textContent=title||'Estamos a preparar algo especial.';
-    modalBody.textContent=body||'Esta demonstração apresenta a identidade e os percursos da LUMINA. As reservas, propostas, pagamentos e contas serão disponibilizados após a implementação e testes do sistema operacional.';
+    modalBody.textContent=body||'As contas e os pedidos privados já estão disponíveis. Reservas confirmadas, propostas de profissionais e pagamentos continuam em desenvolvimento.';
     modal.classList.add('open');modal.setAttribute('aria-hidden','false');
     document.body.classList.add('menu-open');closeBtn?.focus();
   }
@@ -116,8 +126,8 @@
   }
   document.querySelectorAll('[data-booking-tab]').forEach(b=>b.addEventListener('click',()=>bookingTab(b.dataset.bookingTab)));
   const menuButton=document.getElementById('mobile-menu-toggle'),mobileMenu=document.getElementById('mobile-menu');
-  function closeMenu(){if(!mobileMenu)return;mobileMenu.classList.remove('open');menuButton?.setAttribute('aria-expanded','false');menuButton?.setAttribute('aria-label','Abrir menu');document.body.classList.remove('menu-open');}
-  menuButton?.addEventListener('click',()=>{const opened=!mobileMenu.classList.contains('open');mobileMenu.classList.toggle('open',opened);menuButton.setAttribute('aria-expanded',String(opened));menuButton.setAttribute('aria-label',opened?'Fechar menu':'Abrir menu');document.body.classList.toggle('menu-open',opened)});
+  function closeMenu(){if(!mobileMenu)return;mobileMenu.classList.remove('open');menuButton?.setAttribute('aria-expanded','false');menuButton?.setAttribute('aria-label','Abrir menu');const icon=menuButton?.querySelector('use');if(icon)icon.setAttribute('href','/assets/lumina-icons.svg#menu');document.body.classList.remove('menu-open');}
+  menuButton?.addEventListener('click',()=>{const opened=!mobileMenu.classList.contains('open');mobileMenu.classList.toggle('open',opened);menuButton.setAttribute('aria-expanded',String(opened));menuButton.setAttribute('aria-label',opened?'Fechar menu':'Abrir menu');const icon=menuButton.querySelector('use');if(icon)icon.setAttribute('href','/assets/lumina-icons.svg#'+(opened?'close':'menu'));document.body.classList.toggle('menu-open',opened)});
   mobileMenu?.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
   window.addEventListener('resize',()=>{if(innerWidth>900)closeMenu()});
   document.querySelectorAll('.reveal').forEach(el=>{if('IntersectionObserver' in window){const io=new IntersectionObserver((entries,observer)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}})},{threshold:.07});io.observe(el)}else el.classList.add('visible')});
