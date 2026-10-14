@@ -70,7 +70,7 @@ Na consola **Realtime Database > Data**, criar os nós:
 }
 ```
 
-**Atenção:** isto é um exemplo de estrutura. Não substituas o conteúdo atual da raiz do Realtime Database; adiciona só o nó necessário sem apagar dados existentes.
+**Atenção:** esta flag protege o registo na interface e (com as regras publicadas) impede criação de novos perfis enquanto estiver false, mas não impede alguém de invocar diretamente a API pública Firebase Authentication se Email/Password estiver ativo. Para impedir novas contas Auth até ao lançamento, mantém o fornecedor Email/Password desativado até completares a configuração. Isto é um exemplo de estrutura. Não substituas o conteúdo atual da raiz do Realtime Database; adiciona só o nó necessário sem apagar dados existentes.
 
 A flag `registrationEnabled` pode ser alterada na consola ou por uma ferramenta administrativa autorizada. As regras negam escritas de clientes nesta flag.
 
