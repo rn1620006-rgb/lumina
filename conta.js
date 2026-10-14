@@ -5,7 +5,7 @@ import {
   getIdToken, setPersistence, browserLocalPersistence,
   EmailAuthProvider, reauthenticateWithCredential, updatePassword
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import { ref, set, update, push, onValue, serverTimestamp }
+import { ref, set, update, push, onValue, serverTimestamp, remove, query, orderByChild, equalTo, get }
   from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js';
 
 const el=id=>document.getElementById(id);
@@ -20,13 +20,15 @@ const elements={
   professionalArea:el('professional-area'),verifyBox:el('verify-box'),
   requestForm:el('request-form'),requestSubmit:el('request-submit'),
   requestsList:el('requests-list'),requestCounter:el('request-counter'),
+  publishOptin:el('request-publish-optin'),
   editProfileForm:el('edit-profile-form'),editProfileSubmit:el('edit-profile-submit'),
   requestSearch:el('request-search'),connectionStatus:el('firebase-connection-status'),
   connectionDot:el('firebase-connection-dot'),verificationState:el('account-verification-state'),
   passwordForm:el('password-form'),passwordSubmit:el('password-submit')
 };
 let mode='login', registrationOpen=false, currentUser=null, currentProfile=null;
-let stopProfile=null,stopRequests=null,busy=false;
+let stopProfile=null,stopRequests=null,stopPublic=null,busy=false;
+let publishedIds=new Set();
 let myRequests=[];
 const requestedCategory=new URLSearchParams(window.location.search).get('categoria');
 let categoryApplied=false;
@@ -161,6 +163,8 @@ el('signout').addEventListener('click',async()=>{try{await signOut(auth);toast('
 function stopSubscriptions(){
   if(stopProfile){stopProfile();stopProfile=null}
   if(stopRequests){stopRequests();stopRequests=null}
+  if(stopPublic){stopPublic();stopPublic=null}
+  publishedIds=new Set();
   currentProfile=null;
   myRequests=[];
   elements.requestsList.replaceChildren();
@@ -210,7 +214,75 @@ function renderSections(){
   }
   if(hasProfile && prof.role==='cliente'){
     listenRequests();
-  }else if(stopRequests){stopRequests();stopRequests=null;myRequests=[];renderRequestList();}
+    listenMyPublications();
+  }else{
+    if(stopRequests){stopRequests();stopRequests=null;}
+    if(stopPublic){stopPublic();stopPublic=null;}
+    myRequests=[];publishedIds=new Set();
+    renderRequestList();
+  }
+}
+// Publicação voluntária: publica apenas dados minimizados, nunca detalhes nem email.
+async function publishSummary(item,alreadyConfirmed=false){
+  const user=currentUser;
+  if(!user || !currentProfile || currentProfile.role!=='cliente'){
+    toast('É necessária uma conta de cliente para publicar pedidos.','error');
+    return false;
+  }
+  if(!user.emailVerified){
+    toast('Confirma o email antes de publicar um pedido.','error');
+    return false;
+  }
+  if(!item || !item.id || item.ownerUid!==user.uid){
+    toast('Este pedido não pertence à tua conta.','error');
+    return false;
+  }
+  if(!alreadyConfirmed){
+    const confirmed=window.confirm(
+      'Tornar este pedido visível na página inicial da LUMINA?\n\n'+
+      'Título: '+item.title+'\nCategoria: '+item.category+'\nLocalidade: '+item.city+
+      '\n\nO email, a descrição completa e os teus dados pessoais continuarão privados. Confirma que o título não contém contactos nem moradas completas.'
+    );
+    if(!confirmed)return false;
+  }
+  try{
+    await getIdToken(user,true);
+    await set(ref(database,LUMINA_PATH+'/publicRequests/'+item.id),{
+      id:item.id,ownerUid:user.uid,title:item.title,category:item.category,city:item.city,
+      createdAt:item.createdAt,publishedAt:serverTimestamp()
+    });
+    publishedIds.add(item.id);
+    renderRequestList();
+    toast('Resumo publicado na página inicial da LUMINA.','success');
+    return true;
+  }catch(error){
+    toast('O pedido continua guardado em privado, mas não foi publicado. Confirma que as novas regras de publicRequests foram publicadas na consola Firebase.','error');
+    return false;
+  }
+}
+async function unpublishSummary(item){
+  const user=currentUser;
+  if(!user || item.ownerUid!==user.uid)return;
+  try{
+    await remove(ref(database,LUMINA_PATH+'/publicRequests/'+item.id));
+    publishedIds.delete(item.id);
+    renderRequestList();
+    toast('Resumo retirado da página inicial. O pedido privado continua guardado.','success');
+  }catch(error){toast(friendlyError(error),'error');}
+}
+function listenMyPublications(){
+  if(stopPublic || !currentUser)return;
+  stopPublic=onValue(
+    query(ref(database,LUMINA_PATH+'/publicRequests'),orderByChild('ownerUid'),equalTo(currentUser.uid)),
+    snapshot=>{
+      publishedIds=new Set(snapshot.exists()?Object.keys(snapshot.val()):[]);
+      renderRequestList();
+    },()=>{
+      // Falha na leitura pública não deve interromper o histórico privado.
+      publishedIds=new Set();
+      renderRequestList();
+    }
+  );
 }
 function renderRequestList(){
   const q=safeText(elements.requestSearch.value,180).toLocaleLowerCase('pt-PT');
@@ -243,7 +315,18 @@ function renderRequestList(){
         toast('Resumo copiado. Não contém dados de outros utilizadores.','success');
       }catch{toast('Não foi possível copiar automaticamente. Usa a seleção manual do texto.','error');}
     });
-    node.append(title,subtitle,details,status,copy);elements.requestsList.append(node);
+    const publication=document.createElement('button');
+    publication.type='button';
+    publication.className='account-publication-action';
+    publication.textContent=publishedIds.has(item.id)?'Retirar da página inicial':'Publicar resumo na página inicial';
+    publication.addEventListener('click',async()=>{
+      publication.disabled=true;
+      try{
+        if(publishedIds.has(item.id))await unpublishSummary(item);
+        else await publishSummary(item);
+      }finally{publication.disabled=false;}
+    });
+    node.append(title,subtitle,details,status,copy,publication);elements.requestsList.append(node);
   }
 }
 elements.requestSearch.addEventListener('input',renderRequestList);
@@ -351,13 +434,21 @@ elements.requestForm.addEventListener('submit',async event=>{
   if(title.length<8||!category||city.length<2||details.length<12||details.length>900){
     toast('Preenche os campos do pedido (mínimo de 8 caracteres no título e 12 na descrição).','error');return;
   }
+  const alsoPublish=elements.publishOptin.checked;
   elements.requestSubmit.disabled=true;elements.requestSubmit.textContent='A guardar…';
   try{
     await getIdToken(currentUser,true);
     const node=push(ref(database,LUMINA_PATH+'/requests/'+currentUser.uid));
     await set(node,{id:node.key,ownerUid:currentUser.uid,title,category,city,details,createdAt:serverTimestamp(),status:'novo'});
     elements.requestForm.reset();el('request-city').value=currentProfile.city||'';
-    toast('Pedido guardado no teu espaço pessoal. Ainda não foi enviado a profissionais.','success');
+    if(alsoPublish){
+      // O timestamp público tem de coincidir com o valor da cópia privada já persistida.
+      const persisted=await get(ref(database,LUMINA_PATH+'/requests/'+currentUser.uid+'/'+node.key));
+      if(persisted.exists())await publishSummary(persisted.val(),true);
+      else toast('Pedido guardado em privado, mas não foi possível publicar o resumo.','error');
+    }else{
+      toast('Pedido guardado em privado. Podes publicar o resumo no histórico quando quiseres.','success');
+    }
   }catch(error){toast(friendlyError(error),'error');}
   finally{elements.requestSubmit.disabled=!currentUser.emailVerified;elements.requestSubmit.textContent='Guardar pedido ↗';}
 });
