@@ -14,6 +14,10 @@
 - Área pessoal para **clientes** e **profissionais**.
 - Realtime Database sob `lumina_v1/profiles/{uid}` e `lumina_v1/requests/{uid}/{requestId}`.
 - Pedidos pessoais de orçamento para clientes com email confirmado — **ainda não enviados a profissionais**.
+- Homepage: clicar numa categoria abre a área de conta com o serviço pré-selecionado para preparar um pedido privado.
+- Editor de perfil: o utilizador pode atualizar nome e localidade sem alterar o email nem o papel da conta.
+- Histórico em tempo real: pesquisa por título/localidade, cópia do resumo e diagnóstico de ligação Firebase.
+- A área profissional apresenta o estado do perfil, enquanto aguardam a verificação e aprovação dos prestadores.
 - Regras de segurança por UID em `database/firebase.rules.json` e testes em `tests/firebase-security.test.js`.
 - Página `/participar.html` encaminha para `/conta.html`.
 
