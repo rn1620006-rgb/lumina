@@ -46,7 +46,18 @@
  <div id="verify-box" class="account-notice" hidden><strong>Verifica o teu email.</strong><p>Enviámos-te uma mensagem de confirmação. Verifica a caixa de entrada e volta aqui para atualizar o estado.</p><div class="account-buttons"><button type="button" id="verify-refresh" class="button button-line">Já confirmei o email</button><button type="button" id="verify-resend" class="button button-line">Reenviar email</button></div></div>
  <div id="profile-missing" class="account-notice" hidden><strong>Completa o teu perfil.</strong><p>O teu perfil ainda não está guardado na base de dados. Confirma os teus dados para concluir a configuração.</p>
  <form id="profile-form" class="account-form"><label for="profile-name">Nome</label><input id="profile-name" maxlength="120" minlength="2" required autocomplete="name"><label for="profile-city">Localidade</label><input id="profile-city" maxlength="80" minlength="2" required><label for="profile-role">Tipo de conta</label><select id="profile-role"><option value="cliente">Cliente</option><option value="profissional">Profissional</option></select><button class="button button-gold account-primary">Guardar perfil</button></form></div>
- <div id="profile-overview" hidden><div class="profile-banner"><span class="profile-monogram" id="profile-monogram">L</span><div><strong id="profile-display-name">Utilizador LUMINA</strong><small id="profile-meta">Conta pessoal</small></div></div></div>
+ <div id="profile-overview" hidden>
+ <div class="profile-banner"><span class="profile-monogram" id="profile-monogram">L</span><div><strong id="profile-display-name">Utilizador LUMINA</strong><small id="profile-meta">Conta pessoal</small></div></div>
+ <div class="account-status-strip"><span><span id="firebase-connection-dot" class="connection-dot"></span><span id="firebase-connection-status">A verificar ligação</span></span><span id="account-verification-state">Verificação pendente</span></div>
+ <details class="profile-editor"><summary>Editar os meus dados <span aria-hidden="true">✎</span></summary>
+   <form id="edit-profile-form" class="account-form">
+    <label for="edit-profile-name">Nome</label><input id="edit-profile-name" required minlength="2" maxlength="120" autocomplete="name">
+    <label for="edit-profile-city">Localidade</label><input id="edit-profile-city" required minlength="2" maxlength="80">
+    <p class="account-helper">O email e o tipo de conta permanecem protegidos. Apenas o nome e a localidade podem ser atualizados nesta área.</p>
+    <button id="edit-profile-submit" class="button button-gold account-primary" type="submit">Guardar alterações ↗</button>
+   </form>
+ </details>
+ </div>
  <section id="client-area" class="account-dashboard-section" hidden><div class="section-head-sm"><h3>Os meus pedidos</h3><p>Regista e acompanha os teus pedidos de orçamento.</p></div>
  <form id="request-form" class="account-form">
  <label for="request-title">O que precisas?</label><input id="request-title" required minlength="8" maxlength="120" placeholder="Ex.: Reparação de canalização na cozinha">
@@ -55,9 +66,16 @@
  <label for="request-details">Descreve o teu pedido</label><textarea id="request-details" required minlength="12" maxlength="900" rows="4" placeholder="Descreve os detalhes que um profissional deverá conhecer. Não incluas dados sensíveis."></textarea>
  <button id="request-submit" type="submit" class="button button-gold account-primary">Guardar pedido ↗</button>
  </form>
- <div class="requests-header"><h3>Histórico pessoal</h3><small id="request-counter">0 pedidos</small></div><div id="requests-list" aria-live="polite" class="requests-list"><p class="muted">Sem pedidos guardados.</p></div>
+ <div class="requests-header"><h3>Histórico pessoal</h3><small id="request-counter">0 pedidos</small></div>
+ <div class="request-tools"><label for="request-search">Filtrar os meus pedidos</label><input id="request-search" type="search" autocomplete="off" placeholder="Pesquisar por título ou localidade…"></div>
+ <div id="requests-list" aria-live="polite" class="requests-list"><p class="muted">Sem pedidos guardados.</p></div>
  </section>
- <section id="professional-area" class="account-dashboard-section" hidden><div class="section-head-sm"><h3>O teu espaço profissional</h3><p>O perfil profissional está guardado na LUMINA. A disponibilização do catálogo de serviços, propostas e agenda acontecerá nas próximas fases.</p></div><div class="account-notice"><strong>Conta profissional preparada.</strong><p>Esta primeira versão não apresenta dados de outros clientes nem permite enviar propostas até existirem regras de acesso e fluxos de aprovação adequados.</p></div></section>
+ <section id="professional-area" class="account-dashboard-section" hidden><div class="section-head-sm"><h3>O teu espaço profissional</h3><p>O perfil profissional está guardado na LUMINA. A disponibilização do catálogo de serviços, propostas e agenda acontecerá nas próximas fases.</p></div><div class="account-notice"><strong>Conta profissional preparada.</strong><p>O teu perfil fica disponível neste dispositivo e é sincronizado na tua conta Firebase. Podes corrigir o nome ou a localidade no editor acima. A apresentação pública de serviços, a verificação documental e o acesso às propostas serão ativados depois da aprovação administrativa.</p></div>
+ <div class="professional-roadmap" aria-label="Etapas da área profissional">
+  <div><span>01</span><strong>Conta e identidade</strong><small>Perfil privado persistente</small></div>
+  <div><span>02</span><strong>Validação de profissional</strong><small>Em preparação</small></div>
+  <div><span>03</span><strong>Serviços e propostas</strong><small>Aguardam sistema de aprovação</small></div>
+ </div></section>
 </div>
 <div id="account-toast" role="status" aria-live="polite" class="account-toast" hidden></div>
 </section></div></main>
