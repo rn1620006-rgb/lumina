@@ -57,3 +57,21 @@ test('nunca apresenta email verificado como aprovação profissional',()=>{
  assert.match(html,/Verifica o teu email/i);
  assert.match(html,/verificação documental/i);
 });
+
+test('homepage integra todos os pedidos PUBLICADOS sem aba separada',()=>{
+  const homepage=read('index.html');
+  const feed=read('pedidos-publicos.js');
+  assert.match(homepage,/id="public-requests-feed"/);
+  assert.match(homepage,/src="\/pedidos-publicos\.js"/);
+  assert.match(feed,/LUMINA_PATH\+'\/publicRequests'/);
+  assert.doesNotMatch(feed,/LUMINA_PATH\+'\/requests\/'/);
+  assert.doesNotMatch(feed,/profiles\//);
+});
+test('cliente escolhe o que será público e pode voltar a privatizar',()=>{
+  assert.match(html,/id="request-publish-optin"/);
+  assert.match(script,/function publishSummary\(/);
+  assert.match(script,/function unpublishSummary\(/);
+  assert.match(script,/remove\(ref\(database,LUMINA_PATH\+'\/publicRequests\/'\+item\.id\)\)/);
+  assert.match(script,/title:item\.title,category:item\.category,city:item\.city/);
+  assert.doesNotMatch(script,/details:item\.details,.*publishedAt/);
+});
