@@ -83,7 +83,7 @@ function setMode(next){
   elements.registrationNotice.hidden=!create||registrationOpen;
   elements.authTitle.textContent=create?'A tua história começa aqui.':'Bem-vindo à LUMINA.';
   elements.authDescription.textContent=create?'Cria o teu espaço pessoal como cliente ou profissional.':'Entra com a tua conta e continua de onde ficaste.';
-  elements.authSubmit.textContent=create?(registrationOpen?'Criar conta LUMINA ↗':'Registo temporariamente fechado'):'Entrar na LUMINA ↗';
+  elements.authSubmit.textContent=create?(registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado'):'Entrar na LUMINA';
   elements.authSubmit.disabled=busy||(create&&!registrationOpen);
   el('auth-password').setAttribute('autocomplete',create?'new-password':'current-password');
   el('register-name').required=create;el('register-city').required=create;
@@ -101,7 +101,7 @@ function checkRegistration(){
     elements.registrationNotice.hidden=mode!=='register'||registrationOpen;
     elements.authSubmit.disabled=busy||(mode==='register'&&!registrationOpen);
     if(previous!==registrationOpen && mode==='register' && !busy) {
-      elements.authSubmit.textContent=registrationOpen?'Criar conta LUMINA ↗':'Registo temporariamente fechado';
+      elements.authSubmit.textContent=registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado';
     }
   },()=>{
     registrationOpen=false;
@@ -148,7 +148,7 @@ elements.authForm.addEventListener('submit',async event=>{
   finally{
     busy=false;
     elements.authSubmit.disabled=(mode==='register'&&!registrationOpen);
-    elements.authSubmit.textContent=mode==='register'?(registrationOpen?'Criar conta LUMINA ↗':'Registo temporariamente fechado'):'Entrar na LUMINA ↗';
+    elements.authSubmit.textContent=mode==='register'?(registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado'):'Entrar na LUMINA';
   }
 });
 elements.forgot.addEventListener('click',async()=>{
@@ -174,7 +174,7 @@ function verificationUI(user){
   const isVerified=Boolean(user.emailVerified);
   elements.verifyBox.hidden=isVerified;
   elements.requestSubmit.disabled=!isVerified;
-  if(elements.verificationState) elements.verificationState.textContent=isVerified?'Email verificado ✓':'Verificação de email pendente';
+  if(elements.verificationState) elements.verificationState.textContent=isVerified?'Email verificado':'Verificação de email pendente';
   return isVerified;
 }
 el('verify-refresh').addEventListener('click',async()=>{
@@ -303,9 +303,9 @@ function renderRequestList(){
     subtitle.textContent=(item.category||'Serviço')+' · '+(item.city||'Algarve');
     const details=document.createElement('p');details.textContent=item.details||'';
     const status=document.createElement('span');status.className='request-state';
-    status.textContent='✦ Guardado (não enviado)';
+    status.textContent='Guardado · não enviado';
     const copy=document.createElement('button');copy.className='account-copy';copy.type='button';
-    copy.textContent='Copiar resumo ↗';
+    copy.textContent='Copiar resumo';
     copy.setAttribute('aria-label','Copiar resumo do pedido '+String(item.title||''));
     copy.addEventListener('click',async()=>{
       const summary=[item.title,item.category+' · '+item.city,item.details].join('\n\n');
@@ -394,7 +394,7 @@ elements.passwordForm.addEventListener('submit',async event=>{
     toast(friendlyError(error),'error');
   }finally{
     elements.passwordSubmit.disabled=false;
-    elements.passwordSubmit.textContent='Atualizar palavra-passe ↗';
+    elements.passwordSubmit.textContent='Atualizar palavra-passe';
   }
 });
 
@@ -422,7 +422,7 @@ elements.editProfileForm.addEventListener('submit',async event=>{
   }catch(error){toast(friendlyError(error),'error');}
   finally{
     elements.editProfileSubmit.disabled=false;
-    elements.editProfileSubmit.textContent='Guardar alterações ↗';
+    elements.editProfileSubmit.textContent='Guardar alterações';
   }
 });
 elements.requestForm.addEventListener('submit',async event=>{
@@ -450,7 +450,7 @@ elements.requestForm.addEventListener('submit',async event=>{
       toast('Pedido guardado em privado. Podes publicar o resumo no histórico quando quiseres.','success');
     }
   }catch(error){toast(friendlyError(error),'error');}
-  finally{elements.requestSubmit.disabled=!currentUser.emailVerified;elements.requestSubmit.textContent='Guardar pedido ↗';}
+  finally{elements.requestSubmit.disabled=!currentUser.emailVerified;elements.requestSubmit.textContent='Guardar pedido';}
 });
 onAuthStateChanged(auth,user=>{
   stopSubscriptions();currentUser=user;
