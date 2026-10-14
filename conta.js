@@ -22,7 +22,6 @@ const elements={
 };
 let mode='login', registrationOpen=false, currentUser=null, currentProfile=null;
 let stopProfile=null,stopRequests=null,busy=false;
-let consentGiven=false;
 el('copyright-year').textContent=String(new Date().getFullYear());
 
 function toast(message,type='info'){
@@ -122,7 +121,11 @@ elements.authForm.addEventListener('submit',async event=>{
       toast('Conta criada! Verifica o email para poderes guardar pedidos.','success');
     }
   }catch(error){if(!error?.profileSaveFailed)toast(friendlyError(error),'error');}
-  finally{busy=false;setMode(mode);}
+  finally{
+    busy=false;
+    elements.authSubmit.disabled=(mode==='register'&&!registrationOpen);
+    elements.authSubmit.textContent=mode==='register'?'Criar conta LUMINA ↗':'Entrar na LUMINA ↗';
+  }
 });
 elements.forgot.addEventListener('click',async()=>{
   const email=el('auth-email').value.trim();
