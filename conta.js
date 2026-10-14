@@ -9,6 +9,7 @@ import { ref, set, update, push, onValue, serverTimestamp, remove, query, orderB
   from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js';
 
 const el=id=>document.getElementById(id);
+function setButtonText(button,label){const text=button.querySelector('.button-label');if(text)text.textContent=label;else button.textContent=label;}
 const elements={
   loading:el('account-loading'),authPanel:el('account-auth'),dashboard:el('account-dashboard'),
   authForm:el('auth-form'),authSubmit:el('auth-submit'),authTitle:el('auth-title'),
@@ -83,7 +84,7 @@ function setMode(next){
   elements.registrationNotice.hidden=!create||registrationOpen;
   elements.authTitle.textContent=create?'A tua história começa aqui.':'Bem-vindo à LUMINA.';
   elements.authDescription.textContent=create?'Cria o teu espaço pessoal como cliente ou profissional.':'Entra com a tua conta e continua de onde ficaste.';
-  elements.authSubmit.textContent=create?(registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado'):'Entrar na LUMINA';
+  setButtonText(elements.authSubmit,create?(registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado'):'Entrar na LUMINA');
   elements.authSubmit.disabled=busy||(create&&!registrationOpen);
   el('auth-password').setAttribute('autocomplete',create?'new-password':'current-password');
   el('register-name').required=create;el('register-city').required=create;
@@ -101,7 +102,7 @@ function checkRegistration(){
     elements.registrationNotice.hidden=mode!=='register'||registrationOpen;
     elements.authSubmit.disabled=busy||(mode==='register'&&!registrationOpen);
     if(previous!==registrationOpen && mode==='register' && !busy) {
-      elements.authSubmit.textContent=registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado';
+      setButtonText(elements.authSubmit,registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado');
     }
   },()=>{
     registrationOpen=false;
@@ -121,7 +122,7 @@ elements.authForm.addEventListener('submit',async event=>{
     if(name.length<2||city.length<2||!['cliente','profissional'].includes(role)){toast('Preenche corretamente o nome, a localidade e o tipo de conta.','error');return;}
     if(password.length<8){toast('Usa uma palavra-passe com pelo menos 8 caracteres.','error');return;}
   }
-  busy=true;elements.authSubmit.disabled=true;elements.authSubmit.textContent='A processar…';clearToast();
+  busy=true;elements.authSubmit.disabled=true;setButtonText(elements.authSubmit,'A processar…');clearToast();
   try{
     await setPersistence(auth,browserLocalPersistence);
     if(mode==='login'){
@@ -148,7 +149,7 @@ elements.authForm.addEventListener('submit',async event=>{
   finally{
     busy=false;
     elements.authSubmit.disabled=(mode==='register'&&!registrationOpen);
-    elements.authSubmit.textContent=mode==='register'?(registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado'):'Entrar na LUMINA';
+    setButtonText(elements.authSubmit,mode==='register'?(registrationOpen?'Criar conta LUMINA':'Registo temporariamente fechado'):'Entrar na LUMINA');
   }
 });
 elements.forgot.addEventListener('click',async()=>{
@@ -381,7 +382,7 @@ elements.passwordForm.addEventListener('submit',async event=>{
     toast('A nova palavra-passe tem de ser diferente da atual.','error');return;
   }
   elements.passwordSubmit.disabled=true;
-  elements.passwordSubmit.textContent='A atualizar…';
+  setButtonText(elements.passwordSubmit,'A atualizar…');
   try{
     const credential=EmailAuthProvider.credential(user.email,current);
     await reauthenticateWithCredential(user,credential);
@@ -394,7 +395,7 @@ elements.passwordForm.addEventListener('submit',async event=>{
     toast(friendlyError(error),'error');
   }finally{
     elements.passwordSubmit.disabled=false;
-    elements.passwordSubmit.textContent='Atualizar palavra-passe';
+    setButtonText(elements.passwordSubmit,'Atualizar palavra-passe');
   }
 });
 
@@ -410,7 +411,7 @@ elements.editProfileForm.addEventListener('submit',async event=>{
     toast('O nome e a localidade devem ter pelo menos 2 caracteres.','error');return;
   }
   elements.editProfileSubmit.disabled=true;
-  elements.editProfileSubmit.textContent='A guardar…';
+  setButtonText(elements.editProfileSubmit,'A guardar…');
   try{
     // Atualiza apenas campos autorizados pelas Rules já publicadas; papel e email nunca mudam.
     await update(ref(database,LUMINA_PATH+'/profiles/'+user.uid),{
@@ -422,7 +423,7 @@ elements.editProfileForm.addEventListener('submit',async event=>{
   }catch(error){toast(friendlyError(error),'error');}
   finally{
     elements.editProfileSubmit.disabled=false;
-    elements.editProfileSubmit.textContent='Guardar alterações';
+    setButtonText(elements.editProfileSubmit,'Guardar alterações');
   }
 });
 elements.requestForm.addEventListener('submit',async event=>{
@@ -435,7 +436,7 @@ elements.requestForm.addEventListener('submit',async event=>{
     toast('Preenche os campos do pedido (mínimo de 8 caracteres no título e 12 na descrição).','error');return;
   }
   const alsoPublish=elements.publishOptin.checked;
-  elements.requestSubmit.disabled=true;elements.requestSubmit.textContent='A guardar…';
+  elements.requestSubmit.disabled=true;setButtonText(elements.requestSubmit,'A guardar…');
   try{
     await getIdToken(currentUser,true);
     const node=push(ref(database,LUMINA_PATH+'/requests/'+currentUser.uid));
@@ -450,7 +451,7 @@ elements.requestForm.addEventListener('submit',async event=>{
       toast('Pedido guardado em privado. Podes publicar o resumo no histórico quando quiseres.','success');
     }
   }catch(error){toast(friendlyError(error),'error');}
-  finally{elements.requestSubmit.disabled=!currentUser.emailVerified;elements.requestSubmit.textContent='Guardar pedido';}
+  finally{elements.requestSubmit.disabled=!currentUser.emailVerified;setButtonText(elements.requestSubmit,'Guardar pedido');}
 });
 onAuthStateChanged(auth,user=>{
   stopSubscriptions();currentUser=user;
