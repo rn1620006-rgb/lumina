@@ -13,7 +13,7 @@ test('todos os elementos usados pelo painel existem no HTML',()=>{
 test('dashboard permite editar apenas nome e localidade',()=>{
  assert.match(html,/id="edit-profile-name"/);
  assert.match(html,/id="edit-profile-city"/);
-  assert.equal(feed.includes("ref(database,LUMINA_PATH+'/profiles/"),false);
+ assert.match(script,/update\(ref\(database,LUMINA_PATH\+'\/profiles\/'\+user\.uid\)/);
  assert.match(script,/name,city,updatedAt:serverTimestamp\(\)/);
 });
 test('pesquisa do histórico não consulta outros utilizadores',()=>{
@@ -65,7 +65,7 @@ test('homepage integra todos os pedidos PUBLICADOS sem aba separada',()=>{
   assert.match(homepage,/src="\/pedidos-publicos\.js"/);
   assert.match(feed,/LUMINA_PATH\+'\/publicRequests'/);
   assert.doesNotMatch(feed,/LUMINA_PATH\+'\/requests\/'/);
-  assert.doesNotMatch(feed,/ref\(database,LUMINA_PATH\+'\\/profiles/);
+  assert.equal(feed.includes("ref(database,LUMINA_PATH+'/profiles/"),false);
 });
 test('cliente escolhe o que será público e pode voltar a privatizar',()=>{
   assert.match(html,/id="request-publish-optin"/);
