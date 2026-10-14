@@ -34,7 +34,7 @@
     <label for="auth-email">Email</label><input id="auth-email" type="email" required autocomplete="email" maxlength="254" placeholder="nome@exemplo.pt">
     <label for="auth-password">Palavra-passe</label><input id="auth-password" type="password" required minlength="8" autocomplete="current-password" placeholder="Mínimo de 8 caracteres">
     <label id="auth-consent-label" class="account-consent" hidden><input id="auth-consent" type="checkbox"> <span>Li a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a> e aceito o tratamento dos meus dados para a criação da conta.</span></label>
-    <button type="submit" id="auth-submit" class="button button-gold account-primary">Entrar na LUMINA <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
+    <button type="submit" id="auth-submit" class="button button-gold account-primary"><span class="button-label">Entrar na LUMINA</span> <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
   </form>
   <button id="forgot-password" type="button" class="account-quiet">Esqueceste-te da palavra-passe?</button>
   <div id="registration-notice" class="account-notice" hidden>A criação de contas só ficará disponível após a publicação das regras de segurança do Firebase e a ativação pelo proprietário.</div>
@@ -54,7 +54,7 @@
     <label for="edit-profile-name">Nome</label><input id="edit-profile-name" required minlength="2" maxlength="120" autocomplete="name">
     <label for="edit-profile-city">Localidade</label><input id="edit-profile-city" required minlength="2" maxlength="80">
     <p class="account-helper">O email e o tipo de conta permanecem protegidos. Apenas o nome e a localidade podem ser atualizados nesta área.</p>
-    <button id="edit-profile-submit" class="button button-gold account-primary" type="submit">Guardar alterações <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
+    <button id="edit-profile-submit" class="button button-gold account-primary" type="submit"><span class="button-label">Guardar alterações</span> <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
    </form>
  </details>
  </div>
@@ -69,7 +69,7 @@
    <input id="password-new" name="newPassword" type="password" autocomplete="new-password" required minlength="10" maxlength="128" placeholder="Pelo menos 10 caracteres">
    <label for="password-confirm">Confirmar nova palavra-passe</label>
    <input id="password-confirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="10" maxlength="128">
-   <button id="password-submit" class="button button-gold account-primary" type="submit">Atualizar palavra-passe <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
+   <button id="password-submit" class="button button-gold account-primary" type="submit"><span class="button-label">Atualizar palavra-passe</span> <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
   </form>
   <p class="account-helper">Em dispositivos partilhados, termina a sessão quando deixares de utilizar a aplicação. Para eliminar a conta e os respetivos dados, usa o contacto indicado na Política de Privacidade.</p>
  </details>
@@ -81,7 +81,7 @@
  <label for="request-details">Descreve o teu pedido</label><textarea id="request-details" required minlength="12" maxlength="900" rows="4" placeholder="Descreve os detalhes que um profissional deverá conhecer. Não incluas dados sensíveis."></textarea>
  <label class="account-consent public-opt-in"><input id="request-publish-optin" type="checkbox"><span>Publicar também um resumo na página inicial da LUMINA. Ficarão visíveis <strong>apenas o título, a categoria e a localidade</strong>. A descrição completa, o email e o teu perfil continuam privados.</span></label>
  <p class="account-helper">Evita incluir nomes, números de telefone, moradas completas ou outros dados pessoais no título.</p>
- <button id="request-submit" type="submit" class="button button-gold account-primary">Guardar pedido <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
+ <button id="request-submit" type="submit" class="button button-gold account-primary"><span class="button-label">Guardar pedido</span> <svg class="l-icon icon-arrow" aria-hidden="true" focusable="false"><use href="/assets/lumina-icons.svg#arrow-up-right"></use></svg></button>
  </form>
  <div class="requests-header"><h3>Histórico pessoal</h3><small id="request-counter">0 pedidos</small></div>
  <p class="account-helper">Os pedidos guardados anteriormente são privados. Podes publicar ou retirar o resumo de qualquer pedido através do histórico abaixo.</p>
