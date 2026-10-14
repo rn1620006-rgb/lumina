@@ -1,74 +1,55 @@
-# LUMINA — Marketplace de Serviços (Algarve)
+# LUMINA — Marketplace Premium de Serviços
 
-Este repositório é o projeto principal da LUMINA, publicado na Vercel.
+**Produção:** https://lumina-rho-mauve-95.vercel.app  
+**Área de conta:** https://lumina-rho-mauve-95.vercel.app/conta.html  
+**Repositório:** rn1620006-rgb/lumina · branch main  
+**Firebase:** `lumina-a0b15` (Realtime Database europe-west1)
 
-## Estado atual (14 outubro 2026) — Firebase Web integrado
+## O que está implementado
 
-- Identidade visual **Petróleo Imperial** (azul midnight, champanhe metálico, Liquid Glass).
-- Homepage responsiva, pesquisa por categorias e pré-visualização de reserva/orçamento.
-- `/conta.html`: Firebase Authentication (email/palavra-passe, confirmação de email, sessão persistente, recuperação de palavra-passe), perfil privado e primeiros pedidos de orçamento em tempo real.
-- `firebase-client.js`: configuração web oficial LUMINA inserida no código; não requer `.env` na Vercel.
-- `database/firebase.rules.json`: regras de segurança por UID e proibição de elevação de privilégios.
-- `/participar.html`: endereço histórico, agora encaminhado para `/conta.html`.
-- `/privacidade.html`: política de privacidade preliminar, sujeita a revisão antes de abrir inscrições.
-- `/api/health`: informa ao frontend se a recolha de interesse está ativada.
-- `/api/interesse`: endpoint POST, validação server-side, consentimento, honeypot, limitação por IP e Postgres.
-- `database/001_early_access.sql`: tabelas para manifestações de interesse e antispam.
-- `tests/lead-validation.test.js`: testes de validação.
+- Identidade visual **Petróleo Imperial** — azul profundo, dourado champanhe, vidro e tipografia premium.
+- Homepage e catálogo demonstrativo de serviços.
+- Integração direta no código do Firebase Web SDK (ver `firebase-client.js`), **sem variáveis de ambiente** para a configuração pública.
+- Firebase Authentication com email/palavra-passe, sessões persistentes, recuperação de acesso e confirmação de email.
+- Área pessoal para **clientes** e **profissionais**.
+- Realtime Database sob `lumina_v1/profiles/{uid}` e `lumina_v1/requests/{uid}/{requestId}`.
+- Pedidos pessoais de orçamento para clientes com email confirmado — **ainda não enviados a profissionais**.
+- Regras de segurança por UID em `database/firebase.rules.json` e testes em `tests/firebase-security.test.js`.
+- Página `/participar.html` encaminha para `/conta.html`.
 
-**O website ainda não tem reservas, pagamentos ou chat reais.** O registo e os pedidos pessoais só ficam abertos depois de o proprietário ativar Email/Password, instalar as regras de segurança do Firebase e definir `lumina_v1/public/registrationEnabled=true` na consola. Não iniciar registos antes dessa validação.
+## Estado de ativação
 
-O antigo endpoint de interesse PostgreSQL mantém-se fechado e foi substituído pelo percurso Firebase.
+**O código está instalado e publicado no GitHub/Vercel, mas o projeto Firebase ainda precisa de configuração administrativa na Firebase Console.** Publicar `firebase.rules.json` no GitHub não publica automaticamente as Rules no Firebase.
 
-## Regras de proteção
+O botão de criação de contas fica desativado até que `lumina_v1/public/registrationEnabled` seja `true`. Esta flag é uma barreira de UX e protege a criação de perfis conforme as Rules fornecidas; para bloquear tecnicamente **todas** as criações de contas Firebase, o fornecedor Email/Password tem de permanecer desativado na consola até ao lançamento.
 
-1. Nunca utilizar bases de dados já existentes de outros projetos (Nayara Clean, Jarvis etc.).
-2. Criar uma base PostgreSQL **exclusiva** para a LUMINA, preferencialmente na UE.
-3. Não colocar DATABASE_URL, tokens ou segredos no GitHub, HTML ou JavaScript cliente.
-4. Preparar documentação jurídica definitiva, identificação do responsável e processo de eliminação de dados antes de abrir inscrições.
-5. O formulário está fechado por padrão, mesmo depois de adicionar a base.
+### Abrir o serviço com segurança
 
-## Ligar a base de dados (ação pendente)
+Consulta **[FIREBASE-SETUP.md](FIREBASE-SETUP.md)** para:
+1. Ativar Email/Password e autorizar o domínio de produção.
+2. Publicar as Rules oficiais no **Realtime Database**.
+3. Rever identificação do responsável e RGPD.
+4. Criar `lumina_v1/public/registrationEnabled=true` sem substituir a raiz do DB.
+5. Testar um utilizador cliente, um profissional e o isolamento de dados.
 
-1. Aceder ao projeto LUMINA na Vercel, secção **Storage**.
-2. Criar uma instância **Neon Postgres** exclusiva para este projeto, respeitando o plano gratuito e os limites apresentados pelo fornecedor.
-3. Selecionar, se disponível, região europeia (ex.: Frankfurt).
-4. Associar a nova base ao projeto LUMINA nas opções da Vercel.
-5. Confirmar que a variável de ambiente de servidor `DATABASE_URL` ou `POSTGRES_URL` está configurada, sem a divulgar.
-6. Na base de dados dedicada, executar o script `database/001_early_access.sql`.
-7. Rever identidade jurídica, política de privacidade, contactabilidade e procedimentos para pedidos RGPD.
-8. **Só depois** definir `LUMINA_SIGNUPS_ENABLED=true` no ambiente de produção e fazer novo deploy.
+**Não utilizar regras públicas com `.read: true, .write: true` na base real.**
 
-Se a integração da Vercel definir outra variável, alterar o nome da configuração da API sem copiar o valor para o repositório.
+## SDK
 
-O frontend verificará `GET /api/health`. Se `submissionsEnabled=false`, o botão do formulário mantém-se bloqueado e é disponibilizado contacto alternativo por email.
-
-## Desenvolvimento e testes
-
-Requer Node 24.x.
+A app atual ainda é um website HTML/CSS/JS estático. Para não introduzir alterações de bundler no deployment do design aprovado, o navegador importa módulos JavaScript do CDN oficial `https://www.gstatic.com/firebasejs/12.19.0/`. A dependência `firebase` também está declarada no `package.json` para evolução futura com bundler. Analytics continua desligado até existir gestão de consentimento.
 
 ```sh
 npm install
 npm test
 ```
 
-As funções em `api/` são Functions compatíveis com a Vercel. Para servir localmente todas as rotas, usar ambiente de desenvolvimento apropriado da Vercel; abrir diretamente o HTML não reproduz os endpoints.
+Não há credenciais do Firebase Admin SDK, segredos de service account, nem passwords no código. A web `apiKey` da configuração `firebaseConfig` é pública, sendo a proteção de dados assegurada sobretudo por Authentication e Rules publicadas no servidor Firebase.
 
-Variáveis de ambiente (definidas **fora** do GitHub):
+## Próximas fases
 
-- `DATABASE_URL` (ou `POSTGRES_URL`) — ligação confidencial a Postgres.
-- `RATE_LIMIT_SECRET` — chave para derivar um identificador criptográfico diário do IP (recomendada).
-- `LUMINA_SIGNUPS_ENABLED` — `true` apenas depois da ativação autorizada; por omissão, fechado.
-
-## Próximas fases técnicas
-
-- Autenticação com confirmação de email e sessões seguras (cliente, profissional, administração).
-- Serviços reais, localização, categorias, disponibilidades e preços.
-- Pedidos de orçamento, propostas, histórico e estados transacionais.
-- Reserva, comunicação, notificações e avaliações verificadas.
-- Moderação administrativa, antifraude, observabilidade e RGPD.
-- Pagamentos e comissões apenas após fluxos transacionais e reconciliação estarem testados.
-
-## Identidade visual
-
-A logo oficial da LUMINA é preservada. O design utiliza `#071B2D`, `#123C46`, `#D4AF6A`, `#F6F1E8` e `#1C1F24`, tipografia editorial e interfaces translúcidas. Evitar substituições por templates genéricos.
+- Administração com autenticação e privilégios atribuídos em backend.
+- Aprovação real de profissionais, portefólios e categorias.
+- Pedidos distribuídos aos profissionais autorizados e propostas de orçamento.
+- Agenda, disponibilidade, reservas, mensagens e notificações.
+- Controlo de abuso, backups, App Check e revisão RGPD.
+- Pagamentos apenas depois de infraestrutura e regras de negócio validadas.
