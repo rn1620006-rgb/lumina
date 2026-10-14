@@ -79,9 +79,12 @@
  <label for="request-category">Categoria</label><select id="request-category" required><option value="">Seleciona um serviço</option><option>Limpeza doméstica</option><option>Limpeza pós-obra</option><option>Canalização</option><option>Eletricidade</option><option>Pintura</option><option>Jardinagem</option><option>Piscinas</option><option>Montagem de móveis</option><option>Climatização</option><option>Obras e remodelações</option><option>Beleza e bem-estar</option><option>Eventos</option><option>Outros serviços</option></select>
  <label for="request-city">Localidade</label><input id="request-city" required minlength="2" maxlength="80" placeholder="Ex.: Faro">
  <label for="request-details">Descreve o teu pedido</label><textarea id="request-details" required minlength="12" maxlength="900" rows="4" placeholder="Descreve os detalhes que um profissional deverá conhecer. Não incluas dados sensíveis."></textarea>
+ <label class="account-consent public-opt-in"><input id="request-publish-optin" type="checkbox"><span>Publicar também um resumo na página inicial da LUMINA. Ficarão visíveis <strong>apenas o título, a categoria e a localidade</strong>. A descrição completa, o email e o teu perfil continuam privados.</span></label>
+ <p class="account-helper">Evita incluir nomes, números de telefone, moradas completas ou outros dados pessoais no título.</p>
  <button id="request-submit" type="submit" class="button button-gold account-primary">Guardar pedido ↗</button>
  </form>
  <div class="requests-header"><h3>Histórico pessoal</h3><small id="request-counter">0 pedidos</small></div>
+ <p class="account-helper">Os pedidos guardados anteriormente são privados. Podes publicar ou retirar o resumo de qualquer pedido através do histórico abaixo.</p>
  <div class="request-tools"><label for="request-search">Filtrar os meus pedidos</label><input id="request-search" type="search" autocomplete="off" placeholder="Pesquisar por título ou localidade…"></div>
  <div id="requests-list" aria-live="polite" class="requests-list"><p class="muted">Sem pedidos guardados.</p></div>
  </section>
