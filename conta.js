@@ -26,6 +26,8 @@ const elements={
 let mode='login', registrationOpen=false, currentUser=null, currentProfile=null;
 let stopProfile=null,stopRequests=null,busy=false;
 let myRequests=[];
+const requestedCategory=new URLSearchParams(window.location.search).get('categoria');
+let categoryApplied=false;
 el('copyright-year').textContent=String(new Date().getFullYear());
 
 function toast(message,type='info'){
@@ -191,6 +193,14 @@ function renderSections(){
     el('profile-meta').textContent=(prof.role==='cliente'?'Cliente':'Profissional')+' · '+(prof.city||'Portugal');
     el('dashboard-title').textContent='Olá, '+(prof.name||'').split(' ')[0]+'.';
     el('request-city').value=el('request-city').value||prof.city||'';
+    if(prof.role==='cliente' && requestedCategory && !categoryApplied){
+      const input=el('request-category');
+      const available=[...input.options].map(option=>option.value);
+      const match=available.find(value=>value.toLocaleLowerCase('pt-PT')===requestedCategory.toLocaleLowerCase('pt-PT'));
+      input.value=match||'Outros serviços';
+      categoryApplied=true;
+      toast('Categoria selecionada: '+requestedCategory+'. Guarda o pedido no teu espaço pessoal quando estiver pronto.','info');
+    }
   }
   if(hasProfile && prof.role==='cliente'){
     listenRequests();
