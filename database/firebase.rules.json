@@ -45,7 +45,7 @@
           ".read": "auth !== null && auth.uid === $uid",
           "$requestId": {
             ".write": "auth !== null && auth.uid === $uid && auth.token.email_verified === true && root.child('lumina_v1/profiles').child($uid).child('role').val() === 'cliente' && !data.exists() && newData.exists()",
-            ".validate": "newData.hasChildren(['id','ownerUid','title','category','city','details','createdAt','status']) && newData.childrenCount() === 8",
+            ".validate": "newData.hasChildren(['id','ownerUid','title','category','city','details','createdAt','status'])",
             "id": {
               ".validate": "newData.isString() && newData.val() === $requestId"
             },
