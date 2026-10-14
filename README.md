@@ -11,6 +11,7 @@
 - Homepage e catálogo demonstrativo de serviços.
 - Integração direta no código do Firebase Web SDK (ver `firebase-client.js`), **sem variáveis de ambiente** para a configuração pública.
 - Firebase Authentication com email/palavra-passe, sessões persistentes, recuperação de acesso e confirmação de email.
+- Segurança da conta: alteração da palavra-passe após reautenticação com a palavra-passe atual, sem armazenar credenciais na base de dados.
 - Área pessoal para **clientes** e **profissionais**.
 - Realtime Database sob `lumina_v1/profiles/{uid}` e `lumina_v1/requests/{uid}/{requestId}`.
 - Pedidos pessoais de orçamento para clientes com email confirmado — **ainda não enviados a profissionais**.
@@ -57,3 +58,13 @@ Não há credenciais do Firebase Admin SDK, segredos de service account, nem pas
 - Agenda, disponibilidade, reservas, mensagens e notificações.
 - Controlo de abuso, backups, App Check e revisão RGPD.
 - Pagamentos apenas depois de infraestrutura e regras de negócio validadas.
+
+## Critérios de validação de autenticação antes de disponibilizar dados reais
+
+- Testar registo, confirmação de email, saída/entrada, recuperação e alteração de palavra-passe com uma conta de teste controlada.
+- Testar no Realtime Database que o utilizador A não lê/escreve o perfil ou os pedidos do utilizador B.
+- Verificar a flag de registos, as Firebase Rules realmente publicadas e os domínios autorizados da Authentication.
+- Configurar Firebase App Check, proteção contra abuso e capacidade de eliminar contas/dados mediante pedido (RGPD) antes do lançamento público.
+- Diferenciar **email confirmado** de **profissional aprovado**: nenhum prestador está validado apenas por abrir conta.
+
+As funcionalidades de contratação e propostas ainda não estão abertas; nenhum pedido privado é distribuído automaticamente.
