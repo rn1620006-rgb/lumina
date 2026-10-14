@@ -97,3 +97,13 @@ Abrir https://lumina-rho-mauve-95.vercel.app/conta.html e testar:
 Esta versão utiliza importações ESM do **CDN oficial Firebase v12.19.0** para manter a aplicação estática atual. A dependência npm também está definida em `package.json` para futura migração para um bundler. A configuração web não é segredo; nunca colocar credenciais de service account/admin no repositório.
 
 **Analytics** não é iniciado enquanto não estiver implementada uma decisão de consentimento apropriada.
+
+## Pedidos na primeira página (regra adicional obrigatória)
+
+A LUMINA usa agora um feed `lumina_v1/publicRequests/{requestId}` com dados minimizados. Todos os visitantes podem ler **apenas** esse feed. Os pedidos privados continuam sob `lumina_v1/requests/{uid}/{requestId}` e não são abertos a terceiros.
+
+**Publica novamente o ficheiro COMPLETO** `database/firebase.rules.json` em [Firebase Console → Realtime Database → Regras](https://console.firebase.google.com/project/lumina-a0b15/database/lumina-a0b15-default-rtdb/rules) após esta atualização. O código no GitHub ou na Vercel não consegue alterar as regras de produção do Firebase sozinho.
+
+Teste: publica o resumo de um pedido já guardado na área de cliente. A homepage deve apresentar título, categoria e localidade; nunca email, nome, descrição privada ou palavra-passe. Depois retira a publicação e confirma que a homepage deixa de mostrar o cartão, mas o pedido permanece no histórico privado.
+
+Os clientes devem confirmar conscientemente a publicação de cada resumo. **Não migrar automaticamente todos os pedidos privados para o feed.** O título publicado pode conter dados pessoais que o próprio utilizador introduziu; evitar identificadores e contactos.
