@@ -2,7 +2,8 @@ import { auth, database, LUMINA_PATH } from './firebase-client.js';
 import {
   onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signOut, sendEmailVerification, sendPasswordResetEmail, reload,
-  getIdToken, setPersistence, browserLocalPersistence
+  getIdToken, setPersistence, browserLocalPersistence,
+  EmailAuthProvider, reauthenticateWithCredential, updatePassword
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import { ref, set, update, push, onValue, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js';
@@ -21,7 +22,8 @@ const elements={
   requestsList:el('requests-list'),requestCounter:el('request-counter'),
   editProfileForm:el('edit-profile-form'),editProfileSubmit:el('edit-profile-submit'),
   requestSearch:el('request-search'),connectionStatus:el('firebase-connection-status'),
-  connectionDot:el('firebase-connection-dot'),verificationState:el('account-verification-state')
+  connectionDot:el('firebase-connection-dot'),verificationState:el('account-verification-state'),
+  passwordForm:el('password-form'),passwordSubmit:el('password-submit')
 };
 let mode='login', registrationOpen=false, currentUser=null, currentProfile=null;
 let stopProfile=null,stopRequests=null,busy=false;
@@ -54,6 +56,10 @@ function friendlyError(error){
     'auth/operation-not-allowed':'Ativa Email/Password nas definições de Authentication do Firebase.',
     'auth/unauthorized-domain':'Adiciona o domínio da LUMINA à lista de domínios autorizados do Firebase.',
     'auth/network-request-failed':'Não foi possível contactar o Firebase. Verifica a ligação à internet.',
+    'auth/requires-recent-login':'Por segurança, volta a iniciar sessão antes de alterar a palavra-passe.',
+    'auth/user-token-expired':'A sessão expirou. Entra novamente na tua conta.',
+    'auth/invalid-user-token':'A sessão já não é válida. Volta a entrar.',
+    'auth/provider-already-linked':'A tua conta está associada a outro método de autenticação.',
     'PERMISSION_DENIED':'A base de dados recusou a operação. Confirma as regras de segurança no Firebase.',
     'permission_denied':'A base de dados recusou a operação. Confirma as regras de segurança no Firebase.'
   };
@@ -270,6 +276,45 @@ elements.profileForm.addEventListener('submit',async event=>{
     toast('Perfil guardado com sucesso.','success');
   }catch(error){toast(friendlyError(error),'error')}
 });
+// Alteração de palavra-passe apenas com autenticação recente. Nunca se armazena a palavra-passe no RTDB.
+elements.passwordForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const user=currentUser;
+  if(!user){toast('Inicia sessão antes de alterar a palavra-passe.','error');return;}
+  if(!user.email || !user.providerData.some(provider=>provider.providerId==='password')){
+    toast('Este método de alteração está disponível apenas para contas com email e palavra-passe.','error');
+    return;
+  }
+  const current=el('password-current').value;
+  const next=el('password-new').value;
+  const confirmation=el('password-confirm').value;
+  if(next.length<10 || next.length>128){
+    toast('Escolhe uma palavra-passe nova com 10 a 128 caracteres.','error');return;
+  }
+  if(next!==confirmation){
+    toast('A confirmação da nova palavra-passe não coincide.','error');return;
+  }
+  if(current===next){
+    toast('A nova palavra-passe tem de ser diferente da atual.','error');return;
+  }
+  elements.passwordSubmit.disabled=true;
+  elements.passwordSubmit.textContent='A atualizar…';
+  try{
+    const credential=EmailAuthProvider.credential(user.email,current);
+    await reauthenticateWithCredential(user,credential);
+    await updatePassword(user,next);
+    elements.passwordForm.reset();
+    const details=el('account-security');
+    if(details)details.open=false;
+    toast('Palavra-passe atualizada com sucesso.','success');
+  }catch(error){
+    toast(friendlyError(error),'error');
+  }finally{
+    elements.passwordSubmit.disabled=false;
+    elements.passwordSubmit.textContent='Atualizar palavra-passe ↗';
+  }
+});
+
 elements.editProfileForm.addEventListener('submit',async event=>{
   event.preventDefault();
   const user=currentUser,profile=currentProfile;
