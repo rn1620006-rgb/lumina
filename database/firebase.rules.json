@@ -79,7 +79,8 @@
       "publicRequests": {
         ".read": true,
         ".indexOn": [
-          "publishedAt"
+          "publishedAt",
+          "ownerUid"
         ],
         "$requestId": {
           ".write": "auth !== null && ((!data.exists() && newData.exists() && auth.token.email_verified === true && newData.child('ownerUid').val() === auth.uid && root.child('lumina_v1/requests').child(auth.uid).child($requestId).exists() && root.child('lumina_v1/requests').child(auth.uid).child($requestId).child('title').val() === newData.child('title').val() && root.child('lumina_v1/requests').child(auth.uid).child($requestId).child('category').val() === newData.child('category').val() && root.child('lumina_v1/requests').child(auth.uid).child($requestId).child('city').val() === newData.child('city').val() && root.child('lumina_v1/requests').child(auth.uid).child($requestId).child('createdAt').val() === newData.child('createdAt').val()) || (data.exists() && !newData.exists() && data.child('ownerUid').val() === auth.uid))",
