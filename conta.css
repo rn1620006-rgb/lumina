@@ -42,3 +42,11 @@
 .professional-roadmap strong{font:500 20px/1.1 var(--serif);color:#eee0c4}
 .professional-roadmap small{color:#9ab3af;font-size:10px;margin-top:5px}
 @media(max-width:600px){.account-status-strip{font-size:9px}.profile-editor{margin-top:18px}}
+
+/* Gestão de palavra-passe: sem interferir com o tema Petróleo Imperial */
+.security-editor{margin-top:26px;padding:20px 22px 21px;border:1px solid rgba(212,175,106,.36);background:linear-gradient(135deg,rgba(212,175,106,.09),rgba(18,60,70,.17));}
+.security-editor>summary{padding-bottom:0}
+.security-editor[open]>summary{padding-bottom:15px;border-bottom:1px solid rgba(212,175,106,.25);margin-bottom:16px}
+.security-editor .account-form{margin-top:15px}
+.security-editor .account-helper{line-height:1.8}
+@media(max-width:600px){.security-editor{padding:17px 16px}}
