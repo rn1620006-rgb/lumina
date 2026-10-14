@@ -13,7 +13,7 @@ test('todos os elementos usados pelo painel existem no HTML',()=>{
 test('dashboard permite editar apenas nome e localidade',()=>{
  assert.match(html,/id="edit-profile-name"/);
  assert.match(html,/id="edit-profile-city"/);
- assert.match(script,/update\(ref\(database,LUMINA_PATH\+'\/profiles\/'\+user\.uid\)/);
+  assert.equal(feed.includes("ref(database,LUMINA_PATH+'/profiles/"),false);
  assert.match(script,/name,city,updatedAt:serverTimestamp\(\)/);
 });
 test('pesquisa do histórico não consulta outros utilizadores',()=>{
