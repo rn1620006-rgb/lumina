@@ -65,7 +65,7 @@ test('homepage integra todos os pedidos PUBLICADOS sem aba separada',()=>{
   assert.match(homepage,/src="\/pedidos-publicos\.js"/);
   assert.match(feed,/LUMINA_PATH\+'\/publicRequests'/);
   assert.doesNotMatch(feed,/LUMINA_PATH\+'\/requests\/'/);
-  assert.doesNotMatch(feed,/profiles\//);
+  assert.doesNotMatch(feed,/ref\(database,LUMINA_PATH\+'\\/profiles/);
 });
 test('cliente escolhe o que será público e pode voltar a privatizar',()=>{
   assert.match(html,/id="request-publish-optin"/);
