@@ -38,7 +38,7 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'service-tile';
-      button.setAttribute('aria-label',s.name+' — ver disponibilidade futura');
+      button.setAttribute('aria-label',s.name+' — preparar pedido de orçamento pessoal');
       const icon = document.createElement('span');
       icon.className = 'service-icon'; icon.textContent = s.symbol;
       const arrow = document.createElement('span');
@@ -46,7 +46,7 @@
       const title = document.createElement('strong'); title.textContent = s.name;
       const caption = document.createElement('small'); caption.textContent = s.detail;
       button.append(icon,arrow,title,caption);
-      button.addEventListener('click',()=>showModal('Serviço em preparação','Estamos a preparar a categoria «'+s.name+'». Nesta apresentação ainda não existem profissionais, horários ou preços verificados para reserva.'));
+      button.addEventListener('click',()=>{window.location.assign('/conta.html?categoria='+encodeURIComponent(s.name));});
       cards.append(button);
     }
     if (!found.length) {
