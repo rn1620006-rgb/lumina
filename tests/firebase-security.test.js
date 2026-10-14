@@ -34,3 +34,20 @@ test('aplicação persiste pedidos próprios e não promove admins',()=>{
   assert.match(app,/serverTimestamp/);
   assert.doesNotMatch(app,/admin:\s*true|isAdmin:\s*true/);
 });
+
+test('feed público permite apenas dados limitados ligados a pedido privado do dono',()=>{
+  const feed=rules.lumina_v1.publicRequests;
+  const entry=feed['$requestId'];
+  assert.equal(feed['.read'],true);
+  assert.deepEqual(feed['.indexOn'],['publishedAt','ownerUid']);
+  assert.match(entry['.write'],/email_verified/);
+  assert.match(entry['.write'],/root\.child\('lumina_v1\/requests'\)/);
+  assert.match(entry['.write'],/newData\.child\('ownerUid'\)\.val\(\) === auth\.uid/);
+  assert.match(entry['.write'],/data\.child\('ownerUid'\)\.val\(\) === auth\.uid/);
+  for(const field of ['id','ownerUid','title','category','city','createdAt','publishedAt']){
+    assert.ok(entry[field] && entry[field]['.validate'],field+' sem validação');
+  }
+  assert.equal(entry['$other']['.validate'],false);
+  assert.equal(entry.email,undefined);
+  assert.equal(entry.details,undefined);
+});
