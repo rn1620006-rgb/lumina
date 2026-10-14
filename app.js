@@ -120,7 +120,7 @@
     document.getElementById('booking-two-label').textContent=d.fieldTwo;
     document.getElementById('booking-two-value').textContent=d.valueTwo;
     const action=document.getElementById('booking-action');
-    action.textContent=d.action;
+    const actionText=action.querySelector('.button-label');if(actionText)actionText.textContent=d.action;else action.textContent=d.action;
     action.dataset.title=value==='orcamento'?'Demonstração de pedido de orçamento':'Demonstração de reserva';
     action.dataset.message=value==='orcamento'?'Os pedidos de orçamento são apenas uma pré-visualização nesta versão. Ainda não é possível enviar propostas reais.':'Esta interface é demonstrativa. Reservas reais exigem profissionais registados, agenda e base de dados segura.';
   }
