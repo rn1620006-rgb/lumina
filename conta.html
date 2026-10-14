@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071b2d"><meta name="description" content="Área de cliente e profissional LUMINA — uma experiência digital premium, com conta e pedidos persistentes.">
+<title>Área pessoal · LUMINA</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/conta.css">
+<script type="module" src="/conta.js"></script></head>
+<body>
+<div class="screen-grain" aria-hidden="true"></div>
+<header class="nav-shell"><div class="container nav-row"><a class="wordmark" href="/" aria-label="Lumina, voltar à página inicial"><span class="wordmark-name gold-text">Lumina</span><span class="wordmark-sub">SERVIÇOS ELEVADOS</span></a><a class="button button-line" href="/">← Voltar ao site</a></div></header>
+<main class="account-shell"><div class="container account-grid">
+<section class="account-intro">
+<span class="overline">O TEU ESPAÇO LUMINA</span>
+<h1>Uma nova<br>maneira de <em class="gold-text">ligar pessoas.</em></h1>
+<p>Descobre a área de conta LUMINA, concebida para acompanhar serviços e projetos com clareza, confiança e elegância.</p>
+<div class="account-points"><div><span>✧</span> <strong>Identidade verificada</strong><small>Conta pessoal com email e palavra-passe</small></div><div><span>◇</span> <strong>Privacidade por desenho</strong><small>Os teus registos só podem ser vistos pela tua conta</small></div><div><span>↗</span> <strong>Dados persistentes</strong><small>Firebase Authentication e Realtime Database</small></div></div>
+<div class="account-note">A LUMINA está em desenvolvimento. A criação de pedidos reais de orçamento depende de contas verificadas e da configuração segura do Firebase.</div>
+</section>
+<section class="account-pane" aria-label="Área pessoal">
+<div id="account-loading" class="account-panel"><span class="overline">A INICIAR A LUMINA</span><h2>A estabelecer ligação…</h2><p>A verificar o estado da tua sessão de forma segura.</p></div>
+<div id="account-auth" class="account-panel" hidden>
+  <div class="auth-tabs" role="tablist" aria-label="Modo de autenticação">
+   <button type="button" data-auth-tab="login" class="active" aria-selected="true" role="tab">Entrar</button>
+   <button type="button" data-auth-tab="register" aria-selected="false" role="tab">Criar conta</button>
+  </div>
+  <h2 id="auth-title">Bem-vindo à LUMINA.</h2>
+  <p id="auth-description">Entra com a tua conta e continua de onde ficaste.</p>
+  <form id="auth-form" class="account-form">
+    <div id="registration-fields" hidden>
+      <label for="register-name">Nome completo</label><input id="register-name" autocomplete="name" minlength="2" maxlength="120" placeholder="O teu nome">
+      <label for="register-city">Localidade</label><input id="register-city" maxlength="80" placeholder="Ex.: Quarteira">
+      <label for="register-role">Como queres utilizar a LUMINA?</label>
+      <select id="register-role"><option value="cliente">Sou cliente</option><option value="profissional">Sou profissional</option></select>
+    </div>
+    <label for="auth-email">Email</label><input id="auth-email" type="email" required autocomplete="email" maxlength="254" placeholder="nome@exemplo.pt">
+    <label for="auth-password">Palavra-passe</label><input id="auth-password" type="password" required minlength="8" autocomplete="current-password" placeholder="Mínimo de 8 caracteres">
+    <label id="auth-consent-label" class="account-consent" hidden><input id="auth-consent" type="checkbox"> <span>Li a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a> e aceito o tratamento dos meus dados para a criação da conta.</span></label>
+    <button type="submit" id="auth-submit" class="button button-gold account-primary">Entrar na LUMINA ↗</button>
+  </form>
+  <button id="forgot-password" type="button" class="account-quiet">Esqueceste-te da palavra-passe?</button>
+  <div id="registration-notice" class="account-notice" hidden>A criação de contas só ficará disponível após a publicação das regras de segurança do Firebase e a ativação pelo proprietário.</div>
+  <p class="account-legal">Ao utilizar a plataforma, concordas em respeitar os termos aplicáveis. Os pedidos continuam sujeitos à validação da operação da LUMINA.</p>
+</div>
+<div id="account-dashboard" class="account-panel" hidden>
+ <div class="dashboard-heading"><div><span class="overline">ESPAÇO PESSOAL</span><h2 id="dashboard-title">A tua área LUMINA.</h2></div><button type="button" id="signout" class="account-quiet">Terminar sessão ↗</button></div>
+ <p id="dashboard-email" class="dashboard-email"></p>
+ <div id="verify-box" class="account-notice" hidden><strong>Verifica o teu email.</strong><p>Enviámos-te uma mensagem de confirmação. Verifica a caixa de entrada e volta aqui para atualizar o estado.</p><div class="account-buttons"><button type="button" id="verify-refresh" class="button button-line">Já confirmei o email</button><button type="button" id="verify-resend" class="button button-line">Reenviar email</button></div></div>
+ <div id="profile-missing" class="account-notice" hidden><strong>Completa o teu perfil.</strong><p>O teu perfil ainda não está guardado na base de dados. Confirma os teus dados para concluir a configuração.</p>
+ <form id="profile-form" class="account-form"><label for="profile-name">Nome</label><input id="profile-name" maxlength="120" minlength="2" required autocomplete="name"><label for="profile-city">Localidade</label><input id="profile-city" maxlength="80" minlength="2" required><label for="profile-role">Tipo de conta</label><select id="profile-role"><option value="cliente">Cliente</option><option value="profissional">Profissional</option></select><button class="button button-gold account-primary">Guardar perfil</button></form></div>
+ <div id="profile-overview" hidden><div class="profile-banner"><span class="profile-monogram" id="profile-monogram">L</span><div><strong id="profile-display-name">Utilizador LUMINA</strong><small id="profile-meta">Conta pessoal</small></div></div></div>
+ <section id="client-area" class="account-dashboard-section" hidden><div class="section-head-sm"><h3>Os meus pedidos</h3><p>Regista e acompanha os teus pedidos de orçamento.</p></div>
+ <form id="request-form" class="account-form">
+ <label for="request-title">O que precisas?</label><input id="request-title" required minlength="8" maxlength="120" placeholder="Ex.: Reparação de canalização na cozinha">
+ <label for="request-category">Categoria</label><select id="request-category" required><option value="">Seleciona um serviço</option><option>Limpeza doméstica</option><option>Limpeza pós-obra</option><option>Canalização</option><option>Eletricidade</option><option>Pintura</option><option>Jardinagem</option><option>Piscinas</option><option>Montagem de móveis</option><option>Climatização</option><option>Obras e remodelações</option><option>Outros serviços</option></select>
+ <label for="request-city">Localidade</label><input id="request-city" required minlength="2" maxlength="80" placeholder="Ex.: Faro">
+ <label for="request-details">Descreve o teu pedido</label><textarea id="request-details" required minlength="12" maxlength="900" rows="4" placeholder="Descreve os detalhes que um profissional deverá conhecer. Não incluas dados sensíveis."></textarea>
+ <button id="request-submit" type="submit" class="button button-gold account-primary">Guardar pedido ↗</button>
+ </form>
+ <div class="requests-header"><h3>Histórico pessoal</h3><small id="request-counter">0 pedidos</small></div><div id="requests-list" aria-live="polite" class="requests-list"><p class="muted">Sem pedidos guardados.</p></div>
+ </section>
+ <section id="professional-area" class="account-dashboard-section" hidden><div class="section-head-sm"><h3>O teu espaço profissional</h3><p>O perfil profissional está guardado na LUMINA. A disponibilização do catálogo de serviços, propostas e agenda acontecerá nas próximas fases.</p></div><div class="account-notice"><strong>Conta profissional preparada.</strong><p>Esta primeira versão não apresenta dados de outros clientes nem permite enviar propostas até existirem regras de acesso e fluxos de aprovação adequados.</p></div></section>
+</div>
+<div id="account-toast" role="status" aria-live="polite" class="account-toast" hidden></div>
+</section></div></main>
+<footer><div class="container footer-bottom"><span>© <span id="copyright-year">2026</span> LUMINA · Plataforma em desenvolvimento</span><a href="/privacidade.html">Privacidade</a></div></footer></body></html>
