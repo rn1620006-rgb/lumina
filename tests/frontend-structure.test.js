@@ -43,3 +43,17 @@ test('editor e pesquisador de pedidos oferecem controlos reais',()=>{
   assert.match(script,/elements\.requestSearch\.addEventListener\('input',renderRequestList\)/);
   assert.match(script,/navigator\.clipboard\.writeText/);
 });
+
+test('segurança da conta exige reautenticação antes de alterar palavra-passe',()=>{
+ assert.match(html,/id="password-form"/);
+ assert.match(html,/id="password-current"/);
+ assert.match(html,/id="password-new"/);
+ assert.match(html,/id="password-confirm"/);
+ assert.match(script,/EmailAuthProvider\.credential\(user\.email,current\)/);
+ assert.match(script,/await reauthenticateWithCredential\(user,credential\);\s*await updatePassword\(user,next\)/);
+ assert.doesNotMatch(script,/set\(ref\(database,[^;]*password/i);
+});
+test('nunca apresenta email verificado como aprovação profissional',()=>{
+ assert.match(html,/verifica(?:ção|r).*email/i);
+ assert.match(html,/verificação documental/i);
+});
