@@ -12,7 +12,7 @@
       "profiles": {
         "$uid": {
           ".read": "auth !== null && auth.uid === $uid",
-          ".write": "auth !== null && auth.uid === $uid && newData.exists() && (!data.exists() || newData.child('role').val() === data.child('role').val())",
+          ".write": "auth !== null && auth.uid === $uid && newData.exists() && (data.exists() ? newData.child('role').val() === data.child('role').val() : root.child('lumina_v1/public/registrationEnabled').val() === true)",
           ".validate": "newData.hasChildren(['uid','name','email','role','city','createdAt'])",
           "uid": {
             ".validate": "newData.isString() && newData.val() === $uid"
