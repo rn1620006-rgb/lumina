@@ -58,6 +58,21 @@
    </form>
  </details>
  </div>
+
+ <details id="account-security" class="profile-editor security-editor">
+  <summary>Segurança da conta <span aria-hidden="true">✧</span></summary>
+  <p class="account-helper">Altera a tua palavra-passe sem sair da LUMINA. Para tua proteção, confirma primeiro a palavra-passe atual.</p>
+  <form id="password-form" class="account-form" autocomplete="on">
+   <label for="password-current">Palavra-passe atual</label>
+   <input id="password-current" name="currentPassword" type="password" autocomplete="current-password" required minlength="6">
+   <label for="password-new">Nova palavra-passe</label>
+   <input id="password-new" name="newPassword" type="password" autocomplete="new-password" required minlength="10" maxlength="128" placeholder="Pelo menos 10 caracteres">
+   <label for="password-confirm">Confirmar nova palavra-passe</label>
+   <input id="password-confirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="10" maxlength="128">
+   <button id="password-submit" class="button button-gold account-primary" type="submit">Atualizar palavra-passe ↗</button>
+  </form>
+  <p class="account-helper">Em dispositivos partilhados, termina a sessão quando deixares de utilizar a aplicação. Para eliminar a conta e os respetivos dados, usa o contacto indicado na Política de Privacidade.</p>
+ </details>
  <section id="client-area" class="account-dashboard-section" hidden><div class="section-head-sm"><h3>Os meus pedidos</h3><p>Regista e acompanha os teus pedidos de orçamento.</p></div>
  <form id="request-form" class="account-form">
  <label for="request-title">O que precisas?</label><input id="request-title" required minlength="8" maxlength="120" placeholder="Ex.: Reparação de canalização na cozinha">
